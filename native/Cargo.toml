@@ -1,0 +1,18 @@
+[package]
+name = "node-crossterm"
+version = "0.1.0"
+authors = ["Sam Gluck <sdgluck@gmail.com>"]
+license = "MIT"
+build = "build.rs"
+exclude = ["artifacts.json", "index.node"]
+
+[lib]
+name = "node_crossterm"
+crate-type = ["dylib"]
+
+[build-dependencies]
+neon-build = "0.2.0"
+
+[dependencies]
+neon = "0.2.0"
+crossterm = "0.6.0"

@@ -1,0 +1,141 @@
+# pinched from https://raw.githubusercontent.com/IronCoreLabs/recrypt-node-binding/master/.travis.yml
+
+language: rust
+rust:
+  - 1.33.0
+
+# all unlabeled jobs run at test. Only if all "test" jobs finish, will the publish job run
+stages:
+  - publish
+
+jobs:
+  include:
+    # PRs, pushes to master, and tags build on all target arches
+    # if this is release tag, the resultant binary will be uploaded to github
+    - name: "Windows - Node 8"
+      os: windows
+      env:
+        - TRAVIS_NODE_VERSION="8.0.0"
+        - SKIP_DEPLOY=0
+      if: tag =~ /^\d+\.\d+\.\d+/ OR branch = master OR type = pull_request
+    # - name: "Linux - Node 8"
+    #   os: linux
+    #   env:
+    #     - TRAVIS_NODE_VERSION="8"
+    #     - SKIP_DEPLOY=0
+    #   if: tag =~ /^\d+\.\d+\.\d+/ OR branch = master OR type = pull_request
+    # - name: "OSX - Node 8"
+    #   os: osx
+    #   env:
+    #     - TRAVIS_NODE_VERSION="8"
+    #     - SKIP_DEPLOY=0
+    #   if: tag =~ /^\d+\.\d+\.\d+/ OR branch = master OR type = pull_request
+    # - name: "Windows - Node 9"
+    #   os: windows
+    #   env:
+    #     - TRAVIS_NODE_VERSION="9"
+    #     - SKIP_DEPLOY=0
+    #   if: tag =~ /^\d+\.\d+\.\d+/ OR branch = master OR type = pull_request
+    # - name: "Linux - Node 9"
+    #   os: linux
+    #   env:
+    #     - TRAVIS_NODE_VERSION="9"
+    #     - SKIP_DEPLOY=0
+    #   if: tag =~ /^\d+\.\d+\.\d+/ OR branch = master OR type = pull_request
+    # - name: "OSX - Node 9"
+    #   os: osx
+    #   env:
+    #     - TRAVIS_NODE_VERSION="9"
+    #     - SKIP_DEPLOY=0
+    #   if: tag =~ /^\d+\.\d+\.\d+/ OR branch = master OR type = pull_request
+    # - name: "Windows - Node 10"
+    #   os: windows
+    #   env:
+    #     - TRAVIS_NODE_VERSION="10"
+    #     - SKIP_DEPLOY=0
+    #   if: tag =~ /^\d+\.\d+\.\d+/ OR branch = master OR type = pull_request
+    # - name: "Linux - Node 10"
+    #   os: linux
+    #   env:
+    #     - TRAVIS_NODE_VERSION="10"
+    #     - SKIP_DEPLOY=0
+    #   if: tag =~ /^\d+\.\d+\.\d+/ OR branch = master OR type = pull_request
+    # - name: "OSX - Node 10"
+    #   os: osx
+    #   env:
+    #     - TRAVIS_NODE_VERSION="10"
+    #     - SKIP_DEPLOY=0
+    #   if: tag =~ /^\d+\.\d+\.\d+/ OR branch = master OR type = pull_request
+    # - name: "Windows - Node 11"
+    #   os: windows
+    #   env:
+    #     - TRAVIS_NODE_VERSION="11"
+    #     - SKIP_DEPLOY=0
+    #   if: tag =~ /^\d+\.\d+\.\d+/ OR branch = master OR type = pull_request
+    # - name: "Linux - Node 11"
+    #   os: linux
+    #   env:
+    #     - TRAVIS_NODE_VERSION="11"
+    #     - SKIP_DEPLOY=0
+    #   if: tag =~ /^\d+\.\d+\.\d+/ OR branch = master OR type = pull_request
+    # - name: "OSX - Node 11"
+    #   os: osx
+    #   env:
+    #     - TRAVIS_NODE_VERSION="11"
+    #     - SKIP_DEPLOY=0
+    #   if: tag =~ /^\d+\.\d+\.\d+/ OR branch = master OR type = pull_request
+
+    # Publish to npm only on release tag
+    - stage: publish
+      name: "Publish to npm"
+      os: linux
+      env:
+        - TRAVIS_NODE_VERSION="8"
+        - SKIP_DEPLOY=1
+        # NPM_TOKEN
+        - secure: "v+YqLhBaU7dgJRiVY38JNGoKqOnxACbLB5P9ckd9b4sJOhdihbPp8/6QZ+McGJaDqlTIY0MghwVQ64jTF1lkbhZBbHlmEBxx7qOY7oXtGISTlhn6FVQmFCulKvDbXAfgVrvDO4gmlC60wPdTGrWeykLPdM5biH6yOHTEl4GjQnKJf5tJ4N3/l6Q8nGgwP6dUAad35Y1P+2aV5vWxP85KCENRRaTGX/54Z5664lQUR0/VXWQdbyG4LenwNQJAxg3+5PsVlpF6B0X94Q7F3mKL2J80rP5cu4MFmx93RCzPX/qDwzLg4Ucv71kg9gi0otg/IUgIoYSDQB2nyFYjTGxydHwWpe4BpC3YosJUWfXojGat9l1BEnLHTcZSTqAwrY8BVUfGBqqFLHkj02nXhe8umz9Sb67RR9Bg+hofPd+iUAVDaA4wr7qrUOMQQ18URUs6lYBwj5RGxXb5PY2wN3kkW6XbA/qqz1NwBnMsOGIC9hOQ3TCB3jQd4HNkLhGrVJ9bq4IKeRwH0ApnkxKx/2e7q5c13f1OLI7vAtSyqBD8GghNB9SevIBhHsRERGghDgTCrt1pwCUoMg1B3gMnVoHeXrUO49swNPBRV529jbFyMknf1T50K8+fJS9BRPITg8GgO9HMNRuM17zPNiBtZSdwCvnmGHrPIDUOqHBJ814TzgY="
+      if: tag =~ /^\d+\.\d+\.\d+/
+      before_install:
+        - npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+      script:
+        - echo "Deploying to NPM..."
+        - node publish.js --publish
+
+before_install:
+  - if [[ "$OSTYPE" != "msys"* ]]; then rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION; fi
+  - if [[ "$OSTYPE" == "msys"* ]]; then export CWD=$(pwd -W) && printf "root:$CWD/nvm\\npath:$CWD/nvm/nodejs" > C:/settings.txt && ./nvm/nvm.exe install $TRAVIS_NODE_VERSION && ./nvm/nvm.exe use $TRAVIS_NODE_VERSION && export PATH=$CWD/nvm/v$TRAVIS_NODE_VERSION:$PATH; fi
+
+install:
+  - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.10.1
+  - export PATH=$HOME/.yarn/bin:$PATH
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always
+cache:
+  yarn: true
+  cargo: true
+  directories:
+    - node_modules
+before_script:
+  - rustup component add rustfmt-preview
+  - yarn install --ignore-scripts
+script:
+  - pushd native/ && cargo fmt -- --check && popd
+  - node publish.js
+
+# deploy the node-pre-gyp binary to github releases so it's there when the npm package is installed
+deploy:
+  provider: releases
+  api_key:
+    # GITHUB TOKEN
+    secure: "npdjeOpdSm/IHvrGd5yUjfVbQss6VTOYJHvy3aAPltZeERNErb2QoB7w2gF5ULxBAM/s0GFlvSZFqU5q9xQ0P2t2UQ9WqdfOV2LXSV50vG6vdw2pwklAuNGBRvtagabSoh/6fqQmwa+gO5xaDLP45/WoUI2ziFIpk4JhwUv4Rc2Iy0P+SejtRnHCo53/t0Y90vOp/OA4IvO43/H0dT2aZIOQds03sXye1s7Ubdck4wDWwdzAvAkXzgLeQOOmtQI4BGZ/4vm7Eo5+owDbbIb+sXYN4IvKruwBuDo7GmN5VkO7pzLfgf36hO2y2uGrdBBiZCZmoBZVQXX63V63AcwQSUsVlUb4votDBx8itph/q3vVeLEbIacrVMQBMDib4Yuis1QBuKhMgVHHFmjrI0n6pRIqlfjbz/chb+8yPEO3Zu6PXamAA9okYuY77naCYzxUc8O/aEc+/tw5fOpLSExh0st91Zwrliqd/nXs1tEi3y1b6nLlqKOMrXnKV+qhcXqOzBEM2L3w+HVVjVEg0iskdba54L3E7BY1ZGhifiICi31bHkuTU3XB4+45W83OWZCy2+YlXkuV0jYwkGgSxM/vMz05anMcyN6U05v65fokdIQg48v+mAL14ynOUekJ8QPWPrX4P/kvg+cgi2dKKeFs+GTgO++i/zSfHeySn9TXhYk="
+  file_glob: true
+  file: bin-package/*.tar.gz
+  skip_cleanup: true
+  # publish only if we're building a tag and if the SKIP_DEPLOY is set to 0
+  on:
+    tags: true
+    condition: $SKIP_DEPLOY = 0
+  name: Version $TRAVIS_TAG
