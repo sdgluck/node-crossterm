@@ -103,7 +103,7 @@ jobs:
 
 before_install:
   - if [[ "$OSTYPE" != "msys"* ]]; then rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION; fi
-  - if [[ "$OSTYPE" == "msys"* ]]; then export CWD=$(pwd -W) && printf "root:$CWD/nvm\\npath:$CWD/nvm/nodejs" > C:/settings.txt && ./nvm/nvm.exe install $TRAVIS_NODE_VERSION && ./nvm/nvm.exe use $TRAVIS_NODE_VERSION && export PATH=$CWD/nvm/v$TRAVIS_NODE_VERSION:$PATH; fi
+  - if [[ "$OSTYPE" == "msys"* ]]; then export NVS_HOME=$ProgramData/nvs; git clone --single-branch https://github.com/jasongin/nvs $NVS_HOME; source $NVS_HOME/nvs.sh; nvs --version; nvs add $TRAVIS_NODE_VERSION && nvs use $TRAVIS_NODE_VERSION; fi
 
 install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.10.1
